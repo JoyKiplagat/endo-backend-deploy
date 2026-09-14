@@ -15,7 +15,7 @@ from huggingface_hub import hf_hub_download, snapshot_download
 # Configure Gemini API
 genai.configure(api_key=getattr(settings, "GEMINI_API_KEY", os.environ.get("GEMINI_API_KEY")))
 
-REPO_ID = "JoyKiplagat/endoscan-ner-model"
+REPO_ID = "Kiplagat/endoscan_ner_model"
 HF_TOKEN = os.getenv("HF_TOKEN")
 # Weights directory setup
 WEIGHTS_DIR = os.path.join(settings.BASE_DIR, 'backend', 'services', 'weights')
