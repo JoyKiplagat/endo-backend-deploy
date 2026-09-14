@@ -9,10 +9,14 @@ import numpy as np
 import cv2
 from django.conf import settings
 import google.generativeai as genai
+import os
+from huggingface_hub import hf_hub_download, snapshot_download
 
 # Configure Gemini API
 genai.configure(api_key=getattr(settings, "GEMINI_API_KEY", os.environ.get("GEMINI_API_KEY")))
 
+REPO_ID = "JoyKiplagat/endoscan-ner-model"
+HF_TOKEN = os.getenv("HF_TOKEN")
 # Weights directory setup
 WEIGHTS_DIR = os.path.join(settings.BASE_DIR, 'backend', 'services', 'weights')
 
@@ -71,10 +75,22 @@ class GradCAM:
 
 
 def load_model_weights(modality, device):
-    load_path = CONSOLIDATED_LAPAROSCOPY_FILE if modality == "Laparoscopy" else CONSOLIDATED_MRI_FILE
+    # Retrieve model weights dynamically from Hugging Face Hub
+    filename = "laparoscopy_model.pth" if modality == "Laparoscopy" else "mri_model.pth"
+    
+    try:
+        load_path = hf_hub_download(
+            repo_id=REPO_ID,
+            filename=filename,
+            token=HF_TOKEN
+        )
+    except Exception as e:
+        print(f" Error downloading {filename} from Hugging Face: {e}")
+        load_path = None
+
     model = EndoScanModel().to(device)
 
-    if os.path.isfile(load_path):
+    if load_path and os.path.isfile(load_path):
         try:
             try:
                 checkpoint = torch.load(load_path, map_location=device, weights_only=True)
@@ -92,11 +108,11 @@ def load_model_weights(modality, device):
                 cleaned_state_dict = {k.replace("module.", ""): v for k, v in state_dict.items()}
                 model.load_state_dict(cleaned_state_dict, strict=False)
 
-            print(f"✅ Loaded weights for {modality} from {load_path}")
+            print(f" Loaded weights for {modality} from Hugging Face cache ({load_path})")
         except Exception as e:
-            print(f"⚠️ Error loading weights from {load_path}: {e}")
+            print(f" Error loading weights from {load_path}: {e}")
     else:
-        print(f"⚠️ Weight file not found at {load_path}")
+        print(f" Weight file not found for {modality}")
 
     model.eval()
     return model
