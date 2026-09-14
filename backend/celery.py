@@ -2,7 +2,7 @@ import os
 from celery import Celery
 
 # Point to your Django settings module
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'endo_backend.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')
 
 app = Celery('endo_backend')
 
