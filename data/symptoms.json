@@ -1,0 +1,1070 @@
+{
+  "metadata": {
+    "version": "1.0",
+    "project": "EndoScan AI",
+    "description": "Comprehensive endometriosis symptom library. Every symptom is weighted by clinical significance. Score is calculated by summing (weight x severity_modifier) for all reported symptoms, then applying duration and history modifiers.",
+    "clinical_sources": [
+      "NICE Endometriosis Guidelines 2024",
+      "World Endometriosis Society Consensus 2017",
+      "rASRM Classification Criteria",
+      "Merck Manual Professional Edition 2024",
+      "NEJM Endometriosis Review 2018",
+      "WHO Endometriosis Fact Sheet 2023",
+      "American Family Physician 2013",
+      "Pelvic Rehabilitation Medicine Clinical Review"
+    ],
+    "scoring_note": "Base score = sum of (symptom.weight x severity_modifier). Final score = base_score x duration_modifier x history_modifier. ESI tier assigned from scoring_rules.json.",
+    "last_updated": "2026-08-25"
+  },
+
+  "symptom_categories": {
+
+    "menstrual_pain": {
+      "category_label": "Menstrual Pain",
+      "category_weight_multiplier": 1.0,
+      "symptoms": [
+
+        {
+          "symptom_id": "S001",
+          "symptom_name": "dysmenorrhoea",
+          "clinical_term": "Primary/Secondary Dysmenorrhoea",
+          "body_system": "reproductive",
+          "base_weight": 10,
+          "esi_relevance": "critical",
+          "plain_language_aliases": [
+            "painful periods",
+            "period pain",
+            "cramps during period",
+            "menstrual cramps",
+            "period cramps",
+            "my period is very painful",
+            "I cannot move during my period",
+            "hedhi inaniuma sana",
+            "pain that makes me stay in bed",
+            "period pains so bad I faint",
+            "my time of the month is unbearable"
+          ],
+          "severity_levels": {
+            "mild": {
+              "description": "Noticeable period pain, manageable without medication or with paracetamol",
+              "weight_modifier": 1.0,
+              "user_descriptors": ["slight cramps", "mild pain", "uncomfortable but manageable"]
+            },
+            "moderate": {
+              "description": "Significant pain requiring strong painkillers (ibuprofen, mefenamic acid), limits some activities",
+              "weight_modifier": 1.5,
+              "user_descriptors": ["bad cramps", "need strong painkillers", "have to rest", "miss some activities"]
+            },
+            "severe": {
+              "description": "Severe pain, unable to work or attend school, painkillers partially effective",
+              "weight_modifier": 2.0,
+              "user_descriptors": ["miss work", "miss school", "stay in bed", "painkillers don't fully help", "cannot function"]
+            },
+            "critical": {
+              "description": "Incapacitating pain, fainting, vomiting, emergency care sought, no pain relief",
+              "weight_modifier": 3.0,
+              "user_descriptors": ["fainted", "went to hospital", "vomiting from pain", "nothing helps", "worst pain of my life", "rolling on the floor"]
+            }
+          },
+          "duration_sensitive": true,
+          "notes": "Highest weighted symptom. Core diagnostic indicator per NICE 2024 and rASRM."
+        },
+
+        {
+          "symptom_id": "S002",
+          "symptom_name": "chronic_pelvic_pain",
+          "clinical_term": "Chronic Pelvic Pain (CPP)",
+          "body_system": "reproductive",
+          "base_weight": 10,
+          "esi_relevance": "critical",
+          "plain_language_aliases": [
+            "pelvic pain",
+            "lower abdomen pain",
+            "pain in my lower belly",
+            "constant pelvic pain",
+            "pain below my belly button",
+            "pain that never goes away",
+            "pain even when I am not on my period",
+            "chronic pain in my pelvis",
+            "tumbo la chini linauma",
+            "pain between periods",
+            "always in pain"
+          ],
+          "severity_levels": {
+            "mild": { "description": "Occasional pelvic discomfort between periods", "weight_modifier": 1.0, "user_descriptors": ["occasional ache", "sometimes uncomfortable"] },
+            "moderate": { "description": "Regular pelvic pain between periods, distracting but manageable", "weight_modifier": 1.5, "user_descriptors": ["pain most days", "distracting pain", "have to take painkillers outside period"] },
+            "severe": { "description": "Constant pelvic pain affecting daily life, work, and relationships", "weight_modifier": 2.0, "user_descriptors": ["always in pain", "cannot work properly", "affects my daily life"] },
+            "critical": { "description": "Debilitating constant pelvic pain, unable to function normally", "weight_modifier": 3.0, "user_descriptors": ["cannot get out of bed", "constant agony", "affects every part of my life"] }
+          },
+          "duration_sensitive": true,
+          "notes": "Pain persisting more than 6 months strongly associated with endometriosis. Stage increases with chronicity."
+        },
+
+        {
+          "symptom_id": "S003",
+          "symptom_name": "premenstrual_pain",
+          "clinical_term": "Premenstrual Pelvic Pain",
+          "body_system": "reproductive",
+          "base_weight": 7,
+          "esi_relevance": "high",
+          "plain_language_aliases": [
+            "pain before my period",
+            "pain starts days before period",
+            "pain builds up before period",
+            "pelvic pain a week before my period",
+            "pain that starts early"
+          ],
+          "severity_levels": {
+            "mild": { "description": "Mild discomfort 1-2 days before period", "weight_modifier": 1.0, "user_descriptors": ["slight pain day before"] },
+            "moderate": { "description": "Noticeable pain 3-5 days before period begins", "weight_modifier": 1.5, "user_descriptors": ["pain starts a few days early"] },
+            "severe": { "description": "Significant pain 5-10 days before period", "weight_modifier": 2.0, "user_descriptors": ["pain starts a week before", "already in pain before period starts"] },
+            "critical": { "description": "Severe pain starting more than 10 days before period, essentially continuous", "weight_modifier": 3.0, "user_descriptors": ["pain for two weeks before period", "in pain most of the month"] }
+          },
+          "duration_sensitive": false,
+          "notes": "Pain beginning well before menstruation is a distinguishing feature of endometriosis vs primary dysmenorrhoea."
+        },
+
+        {
+          "symptom_id": "S004",
+          "symptom_name": "intermenstrual_bleeding",
+          "clinical_term": "Intermenstrual Bleeding / Spotting",
+          "body_system": "reproductive",
+          "base_weight": 6,
+          "esi_relevance": "moderate",
+          "plain_language_aliases": [
+            "bleeding between periods",
+            "spotting between periods",
+            "blood when not on period",
+            "random bleeding",
+            "bleeding in the middle of my cycle",
+            "I bleed even when it is not my time"
+          ],
+          "severity_levels": {
+            "mild": { "description": "Occasional light spotting mid-cycle", "weight_modifier": 1.0, "user_descriptors": ["light spotting sometimes"] },
+            "moderate": { "description": "Regular mid-cycle bleeding requiring a pad", "weight_modifier": 1.5, "user_descriptors": ["bleed between periods regularly", "need protection outside period"] },
+            "severe": { "description": "Heavy or prolonged bleeding outside periods", "weight_modifier": 2.0, "user_descriptors": ["heavy bleeding outside period", "bleed for weeks"] },
+            "critical": { "description": "Unpredictable heavy bleeding causing anaemia or requiring emergency care", "weight_modifier": 3.0, "user_descriptors": ["uncontrolled bleeding", "anaemia from bleeding"] }
+          },
+          "duration_sensitive": false
+        },
+
+        {
+          "symptom_id": "S005",
+          "symptom_name": "heavy_menstrual_bleeding",
+          "clinical_term": "Menorrhagia / Heavy Menstrual Bleeding",
+          "body_system": "reproductive",
+          "base_weight": 7,
+          "esi_relevance": "high",
+          "plain_language_aliases": [
+            "heavy periods",
+            "very heavy bleeding",
+            "soaking through pads",
+            "flooding periods",
+            "bleeding through clothes",
+            "changing pad every hour",
+            "clots during period",
+            "blood clots",
+            "period so heavy I cannot leave the house",
+            "damu nyingi sana"
+          ],
+          "severity_levels": {
+            "mild": { "description": "Heavier than normal periods but manageable", "weight_modifier": 1.0, "user_descriptors": ["heavier than usual", "use more pads than before"] },
+            "moderate": { "description": "Noticeably heavy flow, changing pad/tampon every 2-3 hours", "weight_modifier": 1.5, "user_descriptors": ["change pad every few hours", "heavy clots"] },
+            "severe": { "description": "Very heavy flow requiring changing every 1-2 hours, restricting activity", "weight_modifier": 2.0, "user_descriptors": ["cannot go far from bathroom", "soak through pad in an hour", "large clots"] },
+            "critical": { "description": "Flooding, soaking through in under an hour, causing anaemia, fainting from blood loss", "weight_modifier": 3.0, "user_descriptors": ["flooding", "anaemic", "fainted from blood loss", "emergency pad changes every 30 minutes"] }
+          },
+          "duration_sensitive": false
+        }
+      ]
+    },
+
+    "sexual_pain": {
+      "category_label": "Pain During or After Sex",
+      "category_weight_multiplier": 1.0,
+      "symptoms": [
+
+        {
+          "symptom_id": "S006",
+          "symptom_name": "dyspareunia_deep",
+          "clinical_term": "Deep Dyspareunia",
+          "body_system": "reproductive",
+          "base_weight": 9,
+          "esi_relevance": "critical",
+          "plain_language_aliases": [
+            "pain during sex",
+            "sex is painful",
+            "deep pain during intercourse",
+            "pain inside during sex",
+            "cannot have sex because of pain",
+            "sex hurts deep inside",
+            "pain after sex",
+            "painful intercourse",
+            "I avoid sex because it hurts",
+            "sex has become impossible"
+          ],
+          "severity_levels": {
+            "mild": { "description": "Occasional mild discomfort during deep penetration", "weight_modifier": 1.0, "user_descriptors": ["slight discomfort sometimes during sex"] },
+            "moderate": { "description": "Regular pain during sex that is distracting but manageable", "weight_modifier": 1.5, "user_descriptors": ["pain most times during sex", "have to stop sometimes"] },
+            "severe": { "description": "Significant pain during sex causing avoidance of intercourse", "weight_modifier": 2.0, "user_descriptors": ["avoid sex because of pain", "sex always hurts", "pain lasts after sex"] },
+            "critical": { "description": "Sex is impossible due to pain, severe relationship and psychological impact", "weight_modifier": 3.0, "user_descriptors": ["cannot have sex at all", "sex is unbearable", "has destroyed my relationship"] }
+          },
+          "duration_sensitive": false,
+          "notes": "Deep dyspareunia is one of the most specific symptoms for deep infiltrating endometriosis (DIE). Reported by up to 90% of endometriosis patients per published cross-sectional studies."
+        },
+
+        {
+          "symptom_id": "S007",
+          "symptom_name": "dyspareunia_superficial",
+          "clinical_term": "Superficial Dyspareunia",
+          "body_system": "reproductive",
+          "base_weight": 6,
+          "esi_relevance": "moderate",
+          "plain_language_aliases": [
+            "pain at the entrance during sex",
+            "burning during sex",
+            "pain at the beginning of sex",
+            "vaginal pain during sex",
+            "cannot tolerate penetration"
+          ],
+          "severity_levels": {
+            "mild": { "description": "Occasional surface discomfort at onset of intercourse", "weight_modifier": 1.0, "user_descriptors": ["slight burning at start"] },
+            "moderate": { "description": "Regular surface pain requiring lubrication or position adjustment", "weight_modifier": 1.5, "user_descriptors": ["burning and pain at entry", "need lubrication"] },
+            "severe": { "description": "Severe surface pain preventing comfortable intercourse", "weight_modifier": 2.0, "user_descriptors": ["cannot tolerate entry", "painful every time"] },
+            "critical": { "description": "Any penetration impossible due to pain", "weight_modifier": 3.0, "user_descriptors": ["any touch is painful", "sex is impossible"] }
+          },
+          "duration_sensitive": false
+        },
+
+        {
+          "symptom_id": "S008",
+          "symptom_name": "post_coital_bleeding",
+          "clinical_term": "Post-Coital Bleeding",
+          "body_system": "reproductive",
+          "base_weight": 5,
+          "esi_relevance": "moderate",
+          "plain_language_aliases": [
+            "bleeding after sex",
+            "blood after intercourse",
+            "spotting after sex"
+          ],
+          "severity_levels": {
+            "mild": { "description": "Occasional light spotting after sex", "weight_modifier": 1.0, "user_descriptors": ["sometimes bleed a little after sex"] },
+            "moderate": { "description": "Regular bleeding after sex", "weight_modifier": 1.5, "user_descriptors": ["bleed after sex most times"] },
+            "severe": { "description": "Heavy or prolonged bleeding after sex", "weight_modifier": 2.0, "user_descriptors": ["bleed heavily after sex"] },
+            "critical": { "description": "Significant haemorrhage after sex requiring medical attention", "weight_modifier": 3.0, "user_descriptors": ["emergency after sex bleeding"] }
+          },
+          "duration_sensitive": false
+        }
+      ]
+    },
+
+    "bowel_symptoms": {
+      "category_label": "Bowel and Gastrointestinal Symptoms",
+      "category_weight_multiplier": 1.0,
+      "symptoms": [
+
+        {
+          "symptom_id": "S009",
+          "symptom_name": "dyschezia",
+          "clinical_term": "Dyschezia (Painful Defecation)",
+          "body_system": "gastrointestinal",
+          "base_weight": 9,
+          "esi_relevance": "critical",
+          "plain_language_aliases": [
+            "painful bowel movements",
+            "pain when going to the toilet",
+            "pain when passing stool",
+            "painful defecation",
+            "pain when pooping",
+            "rectal pain during period",
+            "I dread going to the toilet during my period",
+            "bowel movements are painful",
+            "pain in my rectum",
+            "it hurts to poop especially during my period"
+          ],
+          "severity_levels": {
+            "mild": { "description": "Mild discomfort during bowel movements, mainly during period", "weight_modifier": 1.0, "user_descriptors": ["slight pain when going toilet on period"] },
+            "moderate": { "description": "Significant pain during bowel movements, especially cyclically", "weight_modifier": 1.5, "user_descriptors": ["pain when going toilet during period", "have to brace for it"] },
+            "severe": { "description": "Severe pain during bowel movements causing avoidance", "weight_modifier": 2.0, "user_descriptors": ["avoid going to toilet", "terrible pain every time I go", "screaming in pain on toilet"] },
+            "critical": { "description": "Incapacitating rectal pain, fissures, or emergency presentation", "weight_modifier": 3.0, "user_descriptors": ["cannot go to toilet without crying", "go to hospital for bowel pain"] }
+          },
+          "duration_sensitive": false,
+          "notes": "Highly specific for bowel/rectovaginal endometriosis. Part of the classic triad along with dysmenorrhoea and dyspareunia."
+        },
+
+        {
+          "symptom_id": "S010",
+          "symptom_name": "rectal_bleeding",
+          "clinical_term": "Catamenial Rectal Bleeding",
+          "body_system": "gastrointestinal",
+          "base_weight": 8,
+          "esi_relevance": "high",
+          "plain_language_aliases": [
+            "bleeding from back passage",
+            "blood in stool during period",
+            "rectal bleeding",
+            "blood when I go to the toilet during my period",
+            "blood in my poop during period"
+          ],
+          "severity_levels": {
+            "mild": { "description": "Light rectal bleeding cyclically", "weight_modifier": 1.0, "user_descriptors": ["occasional blood when going toilet during period"] },
+            "moderate": { "description": "Regular rectal bleeding with periods", "weight_modifier": 1.5, "user_descriptors": ["bleed from back passage during period"] },
+            "severe": { "description": "Heavy rectal bleeding during period", "weight_modifier": 2.5, "user_descriptors": ["heavy rectal bleeding every period"] },
+            "critical": { "description": "Significant rectal haemorrhage requiring emergency care", "weight_modifier": 3.5, "user_descriptors": ["emergency rectal bleeding"] }
+          },
+          "duration_sensitive": false,
+          "notes": "Cyclical rectal bleeding is highly specific for bowel endometriosis. Requires urgent specialist evaluation."
+        },
+
+        {
+          "symptom_id": "S011",
+          "symptom_name": "constipation_cyclical",
+          "clinical_term": "Cyclical Constipation",
+          "body_system": "gastrointestinal",
+          "base_weight": 6,
+          "esi_relevance": "moderate",
+          "plain_language_aliases": [
+            "constipation during period",
+            "cannot go to toilet when on period",
+            "bowels stop working during period",
+            "hard to pass stool during period",
+            "bloating and constipation with period"
+          ],
+          "severity_levels": {
+            "mild": { "description": "Mild constipation around period", "weight_modifier": 1.0, "user_descriptors": ["slightly constipated during period"] },
+            "moderate": { "description": "Regular constipation with each period requiring laxatives", "weight_modifier": 1.5, "user_descriptors": ["constipated every period", "need laxatives"] },
+            "severe": { "description": "Severe constipation lasting several days per cycle", "weight_modifier": 2.0, "user_descriptors": ["cannot go for days during period", "very uncomfortable"] },
+            "critical": { "description": "Complete bowel obstruction requiring medical intervention", "weight_modifier": 3.0, "user_descriptors": ["cannot pass anything", "hospital for bowel blockage"] }
+          },
+          "duration_sensitive": false
+        },
+
+        {
+          "symptom_id": "S012",
+          "symptom_name": "diarrhoea_cyclical",
+          "clinical_term": "Cyclical Diarrhoea",
+          "body_system": "gastrointestinal",
+          "base_weight": 5,
+          "esi_relevance": "moderate",
+          "plain_language_aliases": [
+            "diarrhoea during period",
+            "loose stools during period",
+            "running stomach during period",
+            "stomach upset with period",
+            "bowels go crazy during period"
+          ],
+          "severity_levels": {
+            "mild": { "description": "Occasional loose stools with period", "weight_modifier": 1.0, "user_descriptors": ["sometimes loose during period"] },
+            "moderate": { "description": "Regular diarrhoea with each period", "weight_modifier": 1.5, "user_descriptors": ["diarrhoea every period"] },
+            "severe": { "description": "Severe diarrhoea causing dehydration during periods", "weight_modifier": 2.0, "user_descriptors": ["cannot leave toilet during period"] },
+            "critical": { "description": "Emergency presentation from diarrhoea and vomiting during period", "weight_modifier": 3.0, "user_descriptors": ["admitted to hospital for diarrhoea during period"] }
+          },
+          "duration_sensitive": false
+        },
+
+        {
+          "symptom_id": "S013",
+          "symptom_name": "nausea_vomiting_cyclical",
+          "clinical_term": "Cyclical Nausea and Vomiting",
+          "body_system": "gastrointestinal",
+          "base_weight": 6,
+          "esi_relevance": "moderate",
+          "plain_language_aliases": [
+            "nausea during period",
+            "vomiting during period",
+            "feel sick during period",
+            "throw up from period pain",
+            "nausea with cramps",
+            "period makes me vomit"
+          ],
+          "severity_levels": {
+            "mild": { "description": "Mild nausea around period", "weight_modifier": 1.0, "user_descriptors": ["feel slightly sick during period"] },
+            "moderate": { "description": "Regular nausea limiting food intake during period", "weight_modifier": 1.5, "user_descriptors": ["nauseous every period", "cannot eat properly"] },
+            "severe": { "description": "Vomiting during period, significantly affecting nutrition", "weight_modifier": 2.0, "user_descriptors": ["vomit during period", "cannot keep food down"] },
+            "critical": { "description": "Repeated vomiting requiring IV fluids or anti-emetic medication", "weight_modifier": 3.0, "user_descriptors": ["hospital for vomiting during period"] }
+          },
+          "duration_sensitive": false
+        },
+
+        {
+          "symptom_id": "S014",
+          "symptom_name": "bloating_abdominal",
+          "clinical_term": "Abdominal Bloating / Endo Belly",
+          "body_system": "gastrointestinal",
+          "base_weight": 5,
+          "esi_relevance": "moderate",
+          "plain_language_aliases": [
+            "bloating",
+            "endo belly",
+            "stomach swells up",
+            "look pregnant from bloating",
+            "belly distension",
+            "stomach gets very big",
+            "my abdomen swells",
+            "severe bloating with period",
+            "tummy blows up around period"
+          ],
+          "severity_levels": {
+            "mild": { "description": "Mild abdominal bloating around period", "weight_modifier": 1.0, "user_descriptors": ["slightly bloated around period"] },
+            "moderate": { "description": "Noticeable bloating requiring looser clothing", "weight_modifier": 1.5, "user_descriptors": ["have to wear loose clothes", "bloated most of cycle"] },
+            "severe": { "description": "Significant distension affecting appearance and comfort", "weight_modifier": 2.0, "user_descriptors": ["look pregnant from bloating", "bloating every day"] },
+            "critical": { "description": "Extreme distension causing pain and breathing difficulty", "weight_modifier": 3.0, "user_descriptors": ["cannot breathe properly from bloating", "hospitalised for bloating"] }
+          },
+          "duration_sensitive": false
+        }
+      ]
+    },
+
+    "urinary_symptoms": {
+      "category_label": "Bladder and Urinary Symptoms",
+      "category_weight_multiplier": 1.0,
+      "symptoms": [
+
+        {
+          "symptom_id": "S015",
+          "symptom_name": "dysuria",
+          "clinical_term": "Dysuria (Painful Urination)",
+          "body_system": "urinary",
+          "base_weight": 7,
+          "esi_relevance": "high",
+          "plain_language_aliases": [
+            "painful urination",
+            "pain when passing urine",
+            "burning when I pee",
+            "pain when peeing",
+            "it hurts to urinate",
+            "pain when going to toilet for urine",
+            "stinging when I pass urine",
+            "pain in bladder when urinating"
+          ],
+          "severity_levels": {
+            "mild": { "description": "Mild discomfort when urinating, mainly during period", "weight_modifier": 1.0, "user_descriptors": ["slight pain when urinating on period"] },
+            "moderate": { "description": "Regular pain when urinating, especially cyclically", "weight_modifier": 1.5, "user_descriptors": ["pain urinating most days during period"] },
+            "severe": { "description": "Severe pain urinating, requiring pain medication", "weight_modifier": 2.0, "user_descriptors": ["severe pain every time I urinate during period"] },
+            "critical": { "description": "Inability to urinate due to pain, or haematuria", "weight_modifier": 3.0, "user_descriptors": ["cannot pass urine from pain", "blood in urine during period"] }
+          },
+          "duration_sensitive": false,
+          "notes": "Cyclical dysuria is highly specific for bladder endometriosis. NICE 2024 specifically flags cyclical urinary symptoms."
+        },
+
+        {
+          "symptom_id": "S016",
+          "symptom_name": "haematuria",
+          "clinical_term": "Catamenial Haematuria (Blood in Urine)",
+          "body_system": "urinary",
+          "base_weight": 8,
+          "esi_relevance": "high",
+          "plain_language_aliases": [
+            "blood in urine",
+            "blood in pee",
+            "pink or red urine during period",
+            "bloody urine",
+            "urine looks red during period"
+          ],
+          "severity_levels": {
+            "mild": { "description": "Occasional blood traces in urine during period", "weight_modifier": 1.0, "user_descriptors": ["slight pink tinge to urine during period"] },
+            "moderate": { "description": "Regular blood in urine during period", "weight_modifier": 2.0, "user_descriptors": ["blood in urine every period"] },
+            "severe": { "description": "Heavy haematuria during period causing alarm", "weight_modifier": 2.5, "user_descriptors": ["red urine every period"] },
+            "critical": { "description": "Haematuria requiring emergency urological evaluation", "weight_modifier": 3.5, "user_descriptors": ["emergency hospital for blood in urine"] }
+          },
+          "duration_sensitive": false,
+          "notes": "Cyclical haematuria is pathognomonic for bladder endometriosis. Requires urgent referral."
+        },
+
+        {
+          "symptom_id": "S017",
+          "symptom_name": "urinary_frequency",
+          "clinical_term": "Urinary Frequency / Urgency",
+          "body_system": "urinary",
+          "base_weight": 5,
+          "esi_relevance": "moderate",
+          "plain_language_aliases": [
+            "urinating frequently",
+            "need to pee all the time",
+            "frequent urination",
+            "urinary urgency",
+            "cannot hold my bladder",
+            "feel like I always need to pee",
+            "bladder feels full all the time"
+          ],
+          "severity_levels": {
+            "mild": { "description": "Slightly increased urination frequency around period", "weight_modifier": 1.0, "user_descriptors": ["pee a bit more during period"] },
+            "moderate": { "description": "Noticeably frequent urination disrupting daily activities", "weight_modifier": 1.5, "user_descriptors": ["going to toilet constantly", "urgent need to pee"] },
+            "severe": { "description": "Urinary urgency causing incontinence or social restriction", "weight_modifier": 2.0, "user_descriptors": ["cannot make it to toilet in time", "afraid to go far from toilet"] },
+            "critical": { "description": "Urinary retention or complete incontinence requiring catheter", "weight_modifier": 3.0, "user_descriptors": ["hospitalised for urine problems", "catheter needed"] }
+          },
+          "duration_sensitive": false
+        }
+      ]
+    },
+
+    "pain_radiation": {
+      "category_label": "Radiating and Referred Pain",
+      "category_weight_multiplier": 1.0,
+      "symptoms": [
+
+        {
+          "symptom_id": "S018",
+          "symptom_name": "lower_back_pain",
+          "clinical_term": "Lumbosacral Pain / Lower Back Pain",
+          "body_system": "musculoskeletal",
+          "base_weight": 7,
+          "esi_relevance": "high",
+          "plain_language_aliases": [
+            "lower back pain",
+            "back pain during period",
+            "pain in my lower back",
+            "back ache with period",
+            "pain at the base of my spine",
+            "loin pain during period",
+            "my back is in agony during my period",
+            "mgongo unaniuma wakati wa hedhi"
+          ],
+          "severity_levels": {
+            "mild": { "description": "Mild lower back ache around period", "weight_modifier": 1.0, "user_descriptors": ["back aches a bit during period"] },
+            "moderate": { "description": "Significant lower back pain requiring pain relief", "weight_modifier": 1.5, "user_descriptors": ["bad back pain during period", "need painkillers for back"] },
+            "severe": { "description": "Severe back pain limiting movement and activity", "weight_modifier": 2.0, "user_descriptors": ["cannot stand up straight", "back pain is crippling during period"] },
+            "critical": { "description": "Incapacitating back pain, radiating to legs", "weight_modifier": 3.0, "user_descriptors": ["cannot walk from back pain", "pain shoots down my legs"] }
+          },
+          "duration_sensitive": false
+        },
+
+        {
+          "symptom_id": "S019",
+          "symptom_name": "leg_pain_sciatica",
+          "clinical_term": "Sciatic Endometriosis / Leg Pain",
+          "body_system": "neurological",
+          "base_weight": 7,
+          "esi_relevance": "high",
+          "plain_language_aliases": [
+            "leg pain during period",
+            "pain shoots down my leg",
+            "sciatic pain with period",
+            "pain in my thigh",
+            "pain from hip to leg",
+            "numbness in leg during period",
+            "leg weakness during period",
+            "tingling in leg"
+          ],
+          "severity_levels": {
+            "mild": { "description": "Mild leg ache or heaviness around period", "weight_modifier": 1.0, "user_descriptors": ["legs feel heavy during period"] },
+            "moderate": { "description": "Regular leg pain radiating from hip or back during period", "weight_modifier": 1.5, "user_descriptors": ["shooting pain in leg during period"] },
+            "severe": { "description": "Severe radiating leg pain limiting walking", "weight_modifier": 2.0, "user_descriptors": ["cannot walk properly during period", "pain in my whole leg"] },
+            "critical": { "description": "Leg paralysis, drop foot, or emergency neurological presentation", "weight_modifier": 3.5, "user_descriptors": ["cannot move my leg", "foot drop", "emergency from leg pain"] }
+          },
+          "duration_sensitive": false,
+          "notes": "Sciatic endometriosis is rare but documented. Neurological symptoms with cyclical pattern warrant urgent investigation."
+        },
+
+        {
+          "symptom_id": "S020",
+          "symptom_name": "shoulder_tip_pain",
+          "clinical_term": "Catamenial Shoulder Tip Pain / Diaphragmatic Endometriosis",
+          "body_system": "musculoskeletal",
+          "base_weight": 6,
+          "esi_relevance": "high",
+          "plain_language_aliases": [
+            "shoulder pain during period",
+            "pain in shoulder tip with period",
+            "right shoulder pain during period",
+            "pain at top of shoulder during menstruation"
+          ],
+          "severity_levels": {
+            "mild": { "description": "Mild shoulder ache around period", "weight_modifier": 1.0, "user_descriptors": ["shoulder aches during period"] },
+            "moderate": { "description": "Noticeable cyclical shoulder tip pain", "weight_modifier": 1.5, "user_descriptors": ["shoulder pain every period"] },
+            "severe": { "description": "Significant shoulder pain limiting arm movement", "weight_modifier": 2.0, "user_descriptors": ["cannot raise arm during period"] },
+            "critical": { "description": "Severe shoulder pain with breathing difficulty suggesting diaphragmatic involvement", "weight_modifier": 3.0, "user_descriptors": ["cannot breathe deeply during period", "shoulder agony during period"] }
+          },
+          "duration_sensitive": false,
+          "notes": "Cyclical shoulder tip pain suggests diaphragmatic or thoracic endometriosis. Often misdiagnosed."
+        },
+
+        {
+          "symptom_id": "S021",
+          "symptom_name": "hip_groin_pain",
+          "clinical_term": "Hip and Groin Pain",
+          "body_system": "musculoskeletal",
+          "base_weight": 6,
+          "esi_relevance": "moderate",
+          "plain_language_aliases": [
+            "hip pain",
+            "groin pain",
+            "pain in my hip",
+            "inner thigh pain during period",
+            "pain in groin area"
+          ],
+          "severity_levels": {
+            "mild": { "description": "Mild hip or groin ache around period", "weight_modifier": 1.0, "user_descriptors": ["hip aches sometimes"] },
+            "moderate": { "description": "Regular hip or groin pain with periods", "weight_modifier": 1.5, "user_descriptors": ["hip pain every period"] },
+            "severe": { "description": "Severe hip or groin pain limiting walking", "weight_modifier": 2.0, "user_descriptors": ["limp from hip pain during period"] },
+            "critical": { "description": "Incapacitating hip pain requiring emergency care", "weight_modifier": 3.0, "user_descriptors": ["cannot walk from hip pain"] }
+          },
+          "duration_sensitive": false
+        }
+      ]
+    },
+
+    "systemic_symptoms": {
+      "category_label": "Systemic and Whole-Body Symptoms",
+      "category_weight_multiplier": 1.0,
+      "symptoms": [
+
+        {
+          "symptom_id": "S022",
+          "symptom_name": "fatigue_chronic",
+          "clinical_term": "Chronic Fatigue Associated with Endometriosis",
+          "body_system": "systemic",
+          "base_weight": 7,
+          "esi_relevance": "high",
+          "plain_language_aliases": [
+            "extreme tiredness",
+            "chronic fatigue",
+            "always tired",
+            "exhaustion",
+            "no energy",
+            "fatigue",
+            "tired all the time",
+            "cannot do anything because I am tired",
+            "draining feeling",
+            "feel wiped out all the time",
+            "uchovu kupita kiasi"
+          ],
+          "severity_levels": {
+            "mild": { "description": "More tired than usual around period", "weight_modifier": 1.0, "user_descriptors": ["more tired during period"] },
+            "moderate": { "description": "Regular fatigue affecting daily activities", "weight_modifier": 1.5, "user_descriptors": ["tired most of the time", "need to rest more than I should"] },
+            "severe": { "description": "Debilitating fatigue limiting work and social activities", "weight_modifier": 2.0, "user_descriptors": ["cannot work because I am so tired", "in bed from exhaustion"] },
+            "critical": { "description": "Complete fatigue causing inability to function or self-care", "weight_modifier": 3.0, "user_descriptors": ["cannot get out of bed", "total exhaustion", "cannot look after myself"] }
+          },
+          "duration_sensitive": true
+        },
+
+        {
+          "symptom_id": "S023",
+          "symptom_name": "anaemia",
+          "clinical_term": "Iron Deficiency Anaemia Secondary to Menorrhagia",
+          "body_system": "haematological",
+          "base_weight": 6,
+          "esi_relevance": "moderate",
+          "plain_language_aliases": [
+            "anaemia",
+            "low blood",
+            "told I am anaemic",
+            "low iron",
+            "low haemoglobin",
+            "pale from blood loss",
+            "faint from low blood"
+          ],
+          "severity_levels": {
+            "mild": { "description": "Mild anaemia, borderline values on blood test", "weight_modifier": 1.0, "user_descriptors": ["slightly low blood count"] },
+            "moderate": { "description": "Moderate anaemia requiring iron supplements", "weight_modifier": 1.5, "user_descriptors": ["on iron tablets", "anaemia from heavy periods"] },
+            "severe": { "description": "Severe anaemia causing breathlessness and extreme fatigue", "weight_modifier": 2.0, "user_descriptors": ["cannot climb stairs without breathlessness", "severely anaemic"] },
+            "critical": { "description": "Anaemia requiring blood transfusion", "weight_modifier": 3.0, "user_descriptors": ["had blood transfusion", "hospitalised for anaemia"] }
+          },
+          "duration_sensitive": false
+        },
+
+        {
+          "symptom_id": "S024",
+          "symptom_name": "fever_cyclical",
+          "clinical_term": "Catamenial Low-Grade Fever",
+          "body_system": "systemic",
+          "base_weight": 5,
+          "esi_relevance": "moderate",
+          "plain_language_aliases": [
+            "fever during period",
+            "temperature during period",
+            "feel feverish during period",
+            "hot and sweaty during period"
+          ],
+          "severity_levels": {
+            "mild": { "description": "Mild fever (37.5-38°C) occasionally with period", "weight_modifier": 1.0, "user_descriptors": ["slightly feverish during period"] },
+            "moderate": { "description": "Regular low-grade fever with periods", "weight_modifier": 1.5, "user_descriptors": ["fever every period"] },
+            "severe": { "description": "High fever (38.5°C+) regularly with periods", "weight_modifier": 2.0, "user_descriptors": ["high fever during period", "feel very ill during period"] },
+            "critical": { "description": "Fever with signs of infection or sepsis", "weight_modifier": 3.5, "user_descriptors": ["emergency from fever during period", "hospital for infection during period"] }
+          },
+          "duration_sensitive": false
+        },
+
+        {
+          "symptom_id": "S025",
+          "symptom_name": "fainting_syncope",
+          "clinical_term": "Vasovagal Syncope / Fainting from Pain",
+          "body_system": "neurological",
+          "base_weight": 8,
+          "esi_relevance": "high",
+          "plain_language_aliases": [
+            "fainting",
+            "blacking out from pain",
+            "passing out during period",
+            "collapsing from pain",
+            "losing consciousness during period",
+            "going dizzy and faint from pain"
+          ],
+          "severity_levels": {
+            "mild": { "description": "Feeling faint or dizzy during period", "weight_modifier": 1.5, "user_descriptors": ["feel faint during period", "dizzy from pain"] },
+            "moderate": { "description": "Pre-syncope episodes during period", "weight_modifier": 2.0, "user_descriptors": ["nearly faint during period", "have to sit down suddenly from dizziness"] },
+            "severe": { "description": "Fainting episodes during period", "weight_modifier": 2.5, "user_descriptors": ["have fainted during period", "collapsed from pain"] },
+            "critical": { "description": "Repeated fainting requiring emergency care", "weight_modifier": 3.5, "user_descriptors": ["fainted multiple times", "ambulance called during period"] }
+          },
+          "duration_sensitive": false
+        }
+      ]
+    },
+
+    "fertility_symptoms": {
+      "category_label": "Fertility and Reproductive Symptoms",
+      "category_weight_multiplier": 1.0,
+      "symptoms": [
+
+        {
+          "symptom_id": "S026",
+          "symptom_name": "infertility",
+          "clinical_term": "Subfertility / Infertility Associated with Endometriosis",
+          "body_system": "reproductive",
+          "base_weight": 9,
+          "esi_relevance": "critical",
+          "plain_language_aliases": [
+            "cannot get pregnant",
+            "struggling to conceive",
+            "infertility",
+            "trying for a baby without success",
+            "not falling pregnant",
+            "been trying for over a year",
+            "cannot conceive",
+            "problems getting pregnant",
+            "sijawahi pata mtoto ingawa ninajaribu"
+          ],
+          "severity_levels": {
+            "mild": { "description": "Trying to conceive for 6-12 months without success", "weight_modifier": 1.0, "user_descriptors": ["trying for 6-12 months", "not pregnant yet"] },
+            "moderate": { "description": "Trying to conceive for 1-2 years without success", "weight_modifier": 1.5, "user_descriptors": ["trying for over a year", "seen a doctor about fertility"] },
+            "severe": { "description": "Multiple years of subfertility, investigations underway", "weight_modifier": 2.0, "user_descriptors": ["trying for 2-3 years", "had tests done", "IVF recommended"] },
+            "critical": { "description": "Confirmed infertility with endometriosis diagnosis or severe tubal damage", "weight_modifier": 3.0, "user_descriptors": ["told I cannot conceive naturally", "blocked tubes", "IVF failed"] }
+          },
+          "duration_sensitive": false,
+          "notes": "Infertility combined with pelvic pain increases likelihood of endometriosis significantly. NICE 2024 recommends suspect endometriosis in infertility + any pain symptom."
+        },
+
+        {
+          "symptom_id": "S027",
+          "symptom_name": "irregular_periods",
+          "clinical_term": "Menstrual Irregularity",
+          "body_system": "reproductive",
+          "base_weight": 5,
+          "esi_relevance": "moderate",
+          "plain_language_aliases": [
+            "irregular periods",
+            "unpredictable periods",
+            "period comes at different times",
+            "cycle is all over the place",
+            "periods are not regular",
+            "my period has no pattern"
+          ],
+          "severity_levels": {
+            "mild": { "description": "Slightly variable cycle length (±5 days)", "weight_modifier": 1.0, "user_descriptors": ["period varies a few days"] },
+            "moderate": { "description": "Irregular cycle varying by 1-2 weeks", "weight_modifier": 1.5, "user_descriptors": ["period comes at very different times"] },
+            "severe": { "description": "Very irregular cycle, missing periods or very prolonged cycles", "weight_modifier": 2.0, "user_descriptors": ["miss periods", "cycle is 2 months sometimes"] },
+            "critical": { "description": "Amenorrhoea or near-continuous bleeding", "weight_modifier": 3.0, "user_descriptors": ["no periods for months", "bleeding constantly"] }
+          },
+          "duration_sensitive": false
+        },
+
+        {
+          "symptom_id": "S028",
+          "symptom_name": "pelvic_mass_sensation",
+          "clinical_term": "Sensation of Pelvic Mass / Ovarian Cyst Symptoms",
+          "body_system": "reproductive",
+          "base_weight": 7,
+          "esi_relevance": "high",
+          "plain_language_aliases": [
+            "feeling of fullness in pelvis",
+            "something feels different inside",
+            "feeling of pressure in pelvis",
+            "told I have a cyst",
+            "ovarian cyst",
+            "pelvic pressure",
+            "feeling of heaviness in lower belly"
+          ],
+          "severity_levels": {
+            "mild": { "description": "Vague feeling of pelvic fullness", "weight_modifier": 1.0, "user_descriptors": ["pelvic pressure sometimes"] },
+            "moderate": { "description": "Regular sensation of pelvic mass or pressure", "weight_modifier": 1.5, "user_descriptors": ["feel something in my pelvis", "told I have a cyst"] },
+            "severe": { "description": "Significant pelvic mass causing discomfort and urinary/bowel pressure", "weight_modifier": 2.0, "user_descriptors": ["large cyst confirmed by scan", "pressure on bladder and bowel"] },
+            "critical": { "description": "Acute cyst rupture or torsion", "weight_modifier": 4.0, "user_descriptors": ["sudden severe pain, possible cyst rupture", "emergency surgery for cyst"] }
+          },
+          "duration_sensitive": false
+        }
+      ]
+    },
+
+    "psychological_symptoms": {
+      "category_label": "Psychological and Mental Health Symptoms",
+      "category_weight_multiplier": 0.8,
+      "symptoms": [
+
+        {
+          "symptom_id": "S029",
+          "symptom_name": "depression",
+          "clinical_term": "Depression Associated with Chronic Pain",
+          "body_system": "psychological",
+          "base_weight": 5,
+          "esi_relevance": "moderate",
+          "plain_language_aliases": [
+            "depression",
+            "feeling hopeless",
+            "low mood",
+            "feeling worthless",
+            "crying all the time",
+            "nothing brings me joy",
+            "losing hope",
+            "feel like giving up",
+            "mentally struggling with the pain"
+          ],
+          "severity_levels": {
+            "mild": { "description": "Mild low mood related to pain and uncertainty", "weight_modifier": 1.0, "user_descriptors": ["feel down sometimes", "sad about my situation"] },
+            "moderate": { "description": "Regular depression affecting daily functioning", "weight_modifier": 1.5, "user_descriptors": ["depressed most of the time", "struggle to get through the day"] },
+            "severe": { "description": "Severe depression diagnosed or requiring treatment", "weight_modifier": 2.0, "user_descriptors": ["on medication for depression", "cannot function from depression"] },
+            "critical": { "description": "Suicidal ideation or self-harm", "weight_modifier": 3.0, "user_descriptors": ["thoughts of harming myself"] }
+          },
+          "duration_sensitive": true
+        },
+
+        {
+          "symptom_id": "S030",
+          "symptom_name": "anxiety",
+          "clinical_term": "Anxiety Associated with Chronic Pain and Diagnostic Uncertainty",
+          "body_system": "psychological",
+          "base_weight": 4,
+          "esi_relevance": "moderate",
+          "plain_language_aliases": [
+            "anxiety",
+            "constant worry",
+            "panicking",
+            "worried about my health",
+            "anxious all the time",
+            "fear about my fertility",
+            "scared about the pain"
+          ],
+          "severity_levels": {
+            "mild": { "description": "Mild anxiety related to health uncertainty", "weight_modifier": 1.0, "user_descriptors": ["worried about my condition"] },
+            "moderate": { "description": "Significant anxiety affecting daily decisions", "weight_modifier": 1.5, "user_descriptors": ["anxious most of the time", "avoiding activities from fear of pain"] },
+            "severe": { "description": "Severe anxiety disorder, panic attacks", "weight_modifier": 2.0, "user_descriptors": ["panic attacks", "anxiety is disabling"] },
+            "critical": { "description": "Anxiety causing complete social withdrawal or agoraphobia", "weight_modifier": 3.0, "user_descriptors": ["cannot leave the house", "total social withdrawal from anxiety"] }
+          },
+          "duration_sensitive": true
+        },
+
+        {
+          "symptom_id": "S031",
+          "symptom_name": "sleep_disturbance",
+          "clinical_term": "Sleep Disturbance from Pain",
+          "body_system": "psychological",
+          "base_weight": 4,
+          "esi_relevance": "moderate",
+          "plain_language_aliases": [
+            "cannot sleep from pain",
+            "pain wakes me at night",
+            "insomnia from pain",
+            "sleep problems",
+            "night pain",
+            "pain keeps me awake"
+          ],
+          "severity_levels": {
+            "mild": { "description": "Occasional disrupted sleep around period", "weight_modifier": 1.0, "user_descriptors": ["sometimes cannot sleep during period"] },
+            "moderate": { "description": "Regular sleep disruption due to pain", "weight_modifier": 1.5, "user_descriptors": ["pain wakes me up regularly", "poor sleep most nights during period"] },
+            "severe": { "description": "Severely disrupted sleep across the month", "weight_modifier": 2.0, "user_descriptors": ["cannot sleep well most nights", "exhausted from poor sleep"] },
+            "critical": { "description": "Total insomnia causing safety concerns", "weight_modifier": 3.0, "user_descriptors": ["no sleep for days from pain"] }
+          },
+          "duration_sensitive": true
+        }
+      ]
+    },
+
+    "thoracic_symptoms": {
+      "category_label": "Chest and Thoracic Symptoms (Rare but Specific)",
+      "category_weight_multiplier": 1.2,
+      "symptoms": [
+
+        {
+          "symptom_id": "S032",
+          "symptom_name": "catamenial_pneumothorax",
+          "clinical_term": "Catamenial Pneumothorax (Lung Collapse with Period)",
+          "body_system": "pulmonary",
+          "base_weight": 9,
+          "esi_relevance": "critical",
+          "plain_language_aliases": [
+            "lung collapses during period",
+            "breathing problems during period",
+            "chest pain during period",
+            "shortness of breath during period",
+            "chest tightness with period",
+            "coughing blood during period"
+          ],
+          "severity_levels": {
+            "mild": { "description": "Mild chest tightness or breathlessness cyclically", "weight_modifier": 1.5, "user_descriptors": ["chest tight during period"] },
+            "moderate": { "description": "Significant breathlessness during period requiring rest", "weight_modifier": 2.0, "user_descriptors": ["cannot breathe well during period"] },
+            "severe": { "description": "Diagnosed catamenial pneumothorax", "weight_modifier": 3.0, "user_descriptors": ["lung collapsed during period", "hospital for breathing during period"] },
+            "critical": { "description": "Repeated pneumothorax requiring thoracic surgery", "weight_modifier": 4.0, "user_descriptors": ["surgery for lung collapse", "multiple lung collapses with period"] }
+          },
+          "duration_sensitive": false,
+          "notes": "Rare but highly specific for thoracic endometriosis. Any cyclical respiratory symptoms require urgent referral."
+        },
+
+        {
+          "symptom_id": "S033",
+          "symptom_name": "catamenial_haemoptysis",
+          "clinical_term": "Catamenial Haemoptysis (Coughing Blood with Period)",
+          "body_system": "pulmonary",
+          "base_weight": 8,
+          "esi_relevance": "critical",
+          "plain_language_aliases": [
+            "coughing blood during period",
+            "blood in sputum during period",
+            "cough up blood with period"
+          ],
+          "severity_levels": {
+            "mild": { "description": "Blood-tinged sputum during period", "weight_modifier": 2.0, "user_descriptors": ["blood in phlegm during period"] },
+            "moderate": { "description": "Frank haemoptysis during period", "weight_modifier": 3.0, "user_descriptors": ["cough blood during period"] },
+            "severe": { "description": "Significant haemoptysis requiring hospitalisation", "weight_modifier": 4.0, "user_descriptors": ["hospital for coughing blood during period"] },
+            "critical": { "description": "Massive haemoptysis — emergency", "weight_modifier": 5.0, "user_descriptors": ["emergency coughing blood during period"] }
+          },
+          "duration_sensitive": false
+        }
+      ]
+    },
+
+    "skin_umbilical_symptoms": {
+      "category_label": "Skin and Umbilical Symptoms",
+      "category_weight_multiplier": 1.0,
+      "symptoms": [
+
+        {
+          "symptom_id": "S034",
+          "symptom_name": "umbilical_pain_bleeding",
+          "clinical_term": "Umbilical Endometriosis",
+          "body_system": "cutaneous",
+          "base_weight": 8,
+          "esi_relevance": "high",
+          "plain_language_aliases": [
+            "belly button pain during period",
+            "belly button bleeds during period",
+            "swelling at belly button during period",
+            "painful lump at belly button"
+          ],
+          "severity_levels": {
+            "mild": { "description": "Mild cyclical umbilical discomfort", "weight_modifier": 1.0, "user_descriptors": ["belly button uncomfortable during period"] },
+            "moderate": { "description": "Regular cyclical umbilical pain and swelling", "weight_modifier": 2.0, "user_descriptors": ["belly button painful and swollen during period"] },
+            "severe": { "description": "Bleeding or discharge from umbilicus cyclically", "weight_modifier": 3.0, "user_descriptors": ["belly button bleeds during period", "discharge from belly button with period"] },
+            "critical": { "description": "Large umbilical endometrioma requiring surgery", "weight_modifier": 4.0, "user_descriptors": ["lump in belly button requiring surgery"] }
+          },
+          "duration_sensitive": false,
+          "notes": "Cyclical umbilical symptoms are essentially pathognomonic for cutaneous endometriosis."
+        },
+
+        {
+          "symptom_id": "S035",
+          "symptom_name": "scar_endometriosis",
+          "clinical_term": "Scar / Caesarean Section Endometriosis",
+          "body_system": "cutaneous",
+          "base_weight": 7,
+          "esi_relevance": "high",
+          "plain_language_aliases": [
+            "scar swells during period",
+            "old caesarean scar hurts during period",
+            "scar painful cyclically",
+            "CS scar painful during period",
+            "lump in scar that hurts during period"
+          ],
+          "severity_levels": {
+            "mild": { "description": "Mild cyclical scar discomfort", "weight_modifier": 1.0, "user_descriptors": ["scar aches during period"] },
+            "moderate": { "description": "Swelling and tenderness at scar cyclically", "weight_modifier": 2.0, "user_descriptors": ["scar swells and hurts during period"] },
+            "severe": { "description": "Bleeding or discharge from scar cyclically", "weight_modifier": 3.0, "user_descriptors": ["scar bleeds during period", "discharge from scar"] },
+            "critical": { "description": "Large endometrioma in scar requiring excision", "weight_modifier": 4.0, "user_descriptors": ["big lump in scar needing operation"] }
+          },
+          "duration_sensitive": false
+        }
+      ]
+    },
+
+    "quality_of_life": {
+      "category_label": "Functional Impact and Quality of Life",
+      "category_weight_multiplier": 0.9,
+      "symptoms": [
+
+        {
+          "symptom_id": "S036",
+          "symptom_name": "work_school_absence",
+          "clinical_term": "Functional Impairment — Work/School Absence",
+          "body_system": "functional",
+          "base_weight": 7,
+          "esi_relevance": "high",
+          "plain_language_aliases": [
+            "miss work during period",
+            "miss school during period",
+            "cannot go to work",
+            "take days off for period",
+            "period stops me working",
+            "my period affects my job",
+            "I lose days every month"
+          ],
+          "severity_levels": {
+            "mild": { "description": "Occasionally miss 1 day per cycle", "weight_modifier": 1.0, "user_descriptors": ["miss one day sometimes"] },
+            "moderate": { "description": "Miss 2-3 days per cycle regularly", "weight_modifier": 1.5, "user_descriptors": ["miss 2-3 days every period"] },
+            "severe": { "description": "Miss 4-5 days or more per cycle", "weight_modifier": 2.0, "user_descriptors": ["miss almost a week every period", "at risk of losing job"] },
+            "critical": { "description": "Cannot maintain employment or schooling due to symptoms", "weight_modifier": 3.0, "user_descriptors": ["lost job because of period pain", "dropped out of school from pain"] }
+          },
+          "duration_sensitive": true
+        },
+
+        {
+          "symptom_id": "S037",
+          "symptom_name": "relationship_social_impact",
+          "clinical_term": "Psychosocial Impact — Relationship and Social Functioning",
+          "body_system": "functional",
+          "base_weight": 5,
+          "esi_relevance": "moderate",
+          "plain_language_aliases": [
+            "pain affects my relationship",
+            "cannot socialise during period",
+            "avoid events because of pain",
+            "period has ruined my relationship",
+            "I cannot be intimate with my partner",
+            "pain has isolated me"
+          ],
+          "severity_levels": {
+            "mild": { "description": "Occasional cancellation of social plans due to symptoms", "weight_modifier": 1.0, "user_descriptors": ["cancel plans sometimes"] },
+            "moderate": { "description": "Regular social withdrawal due to symptoms", "weight_modifier": 1.5, "user_descriptors": ["withdraw from social life regularly", "relationship strained"] },
+            "severe": { "description": "Significant relationship breakdown or social isolation", "weight_modifier": 2.0, "user_descriptors": ["relationship ended because of pain", "no social life anymore"] },
+            "critical": { "description": "Complete social isolation, relationship breakdown, suicidal ideation", "weight_modifier": 3.0, "user_descriptors": ["completely alone", "lost everything from this condition"] }
+          },
+          "duration_sensitive": true
+        },
+
+        {
+          "symptom_id": "S038",
+          "symptom_name": "previous_misdiagnosis",
+          "clinical_term": "History of Misdiagnosis",
+          "body_system": "functional",
+          "base_weight": 6,
+          "esi_relevance": "high",
+          "plain_language_aliases": [
+            "told it is just period pain",
+            "dismissed by doctor",
+            "diagnosed with IBS",
+            "told I am exaggerating",
+            "treated for something else",
+            "misdiagnosed",
+            "no one believed me",
+            "doctors keep sending me away"
+          ],
+          "severity_levels": {
+            "mild": { "description": "One inconclusive consultation", "weight_modifier": 1.0, "user_descriptors": ["one doctor visit with no answer"] },
+            "moderate": { "description": "2-3 consultations with no diagnosis or wrong diagnosis", "weight_modifier": 1.3, "user_descriptors": ["seen 2-3 doctors with no help", "treated for wrong thing"] },
+            "severe": { "description": "4+ consultations, multiple misdiagnoses", "weight_modifier": 1.6, "user_descriptors": ["been to many doctors with no answer", "misdiagnosed multiple times"] },
+            "critical": { "description": "Years of failed treatment for wrong conditions, no endometriosis workup done", "weight_modifier": 2.0, "user_descriptors": ["suffering for years with no diagnosis", "told it is all in my head"] }
+          },
+          "duration_sensitive": false,
+          "notes": "History of misdiagnosis is not a symptom per se but a clinical red flag that increases ESI urgency. Applied as a modifier."
+        }
+      ]
+    }
+  }
+}

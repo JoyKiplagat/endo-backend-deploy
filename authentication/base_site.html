@@ -1,0 +1,91 @@
+{% extends "admin/base.html" %}
+
+{% block title %}{{ title }} | Clinical Dashboard Admin{% endblock %}
+
+{% block branding %}
+  <h1 id="site-name">
+    <a href="{% url 'admin:index' %}">
+      <span style="color: #e63946; font-weight: 800;">ENDOMETRIOSIS</span> CLINICAL PORTAL
+    </a>
+  </h1>
+{% endblock %}
+
+{% block extrahead %}
+  {{ block.super }}
+  <style>
+    /* Global Color Overrides matching dashboard variables */
+    :root {
+      --primary: #111827;            /* Charcoal background */
+      --secondary: #e63946;          /* Crimson brand accent */
+      --accent: #f59e0b;             /* Amber highlights */
+      --body-bg: #f9fafb;            /* Offwhite body */
+      --header-bg: #111827;          /* Admin header bg */
+      --header-color: #ffffff;
+      --link-color: #e63946;
+      --link-hover-color: #b91c1c;
+      --breadcrumbs-bg: #1f2937;
+    }
+
+    /* Admin Header Styling */
+    #header {
+      background: var(--header-bg) !important;
+      color: var(--header-color) !important;
+      border-bottom: 3px solid var(--secondary);
+      padding: 12px 20px;
+    }
+
+    #header a:link, #header a:visited {
+      color: #ffffff !important;
+    }
+
+    /* Module Headers & Tables */
+    .module h2, .inline-group h2 {
+      background: var(--primary) !important;
+      color: #ffffff !important;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    div.breadcrumbs {
+      background: var(--breadcrumbs-bg) !important;
+      color: #9ca3af !important;
+    }
+
+    div.breadcrumbs a {
+      color: #f3f4f6 !important;
+    }
+
+    /* Buttons & Actions */
+    .button, input[type=submit], input[type=button], .submit-row input {
+      background: var(--secondary) !important;
+      color: #ffffff !important;
+      border-radius: 8px !important;
+      font-weight: 700 !important;
+      text-transform: uppercase !important;
+      border: none !important;
+      padding: 10px 18px !important;
+      transition: background 0.2s ease;
+    }
+
+    .button:hover, input[type=submit]:hover {
+      background: var(--link-hover-color) !important;
+      cursor: pointer;
+    }
+
+    .button.default, input[type=submit].default {
+      background: #1f2937 !important;
+    }
+
+    /* Table Highlight Rows */
+    #changelist table tbody tr:hover {
+      background-color: #fef2f2 !important;
+    }
+
+    thead th {
+      background: #f3f4f6 !important;
+      color: #374151 !important;
+      font-weight: 700;
+    }
+  </style>
+{% endblock %}

@@ -1,0 +1,29 @@
+{
+  "model_version": "endoscan_mri_resnet34_2.5d_roi_v1.0",
+  "model_type": "ResNet-34 2.5D + Platt calibration",
+  "modality": "MRI",
+  "role": "complementary_explainer",
+  "primary_metric": "recall",
+  "chosen_threshold": 0.5,
+  "train_composition": {
+    "real_slices": 2921,
+    "synthetic_slices": 2630,
+    "augment_positive_only": true
+  },
+  "test_metrics": {
+    "recall": 0.85,
+    "specificity": 0.844,
+    "auc": 0.88,
+    "accuracy": 0.82
+  },
+  "success_criteria": {
+    "Recall": 0.8,
+    "Specificity": 0.75,
+    "AUC": 0.85
+  },
+  "aggregation_default": "max",
+  "output_contract": "finding (str) + confidence (float) + Grad-CAM image, for the GenAI explanation layer only",
+  "used_by_fusion_layer": false,
+  "eligible_patients": "already diagnosed via structured/NLP path or a clinician, requesting explanation of an existing MRI scan",
+  "output_path": "mri_explainer"
+}

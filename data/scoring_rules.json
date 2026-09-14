@@ -1,0 +1,159 @@
+{
+  "metadata": {
+    "version": "1.0",
+    "project": "EndoScan AI",
+    "description": "ESI scoring rules, tier definitions, duration modifiers, and history modifiers. Used in conjunction with symptoms.json to calculate final ESI score.",
+    "scoring_formula": "base_score = sum(symptom.base_weight x severity.weight_modifier) for all reported symptoms. final_score = base_score x highest_applicable_duration_modifier x highest_applicable_history_modifier. Tier assigned from esi_tiers range.",
+    "clinical_anchor": "Tiers map to rASRM Stages I-IV and WES severity classifications.",
+    "last_updated": "2026-08-25"
+  },
+
+  "esi_tiers": {
+    "LOW": {
+      "score_range": { "min": 0, "max": 25 },
+      "rasrm_equivalent": "Stage I (Minimal)",
+      "label": "Low",
+      "colour_code": "#3B6D11",
+      "description": "Symptoms are present but mild and intermittent. Pattern is consistent with possible early or superficial endometriosis. Professional evaluation is recommended but not urgent.",
+      "plain_language_explanation": "Your symptoms suggest a mild pattern that is worth discussing with a doctor. Painful periods and some of the symptoms you described can be associated with endometriosis, but at this level they may also have other causes. You should book an appointment with a GP or gynaecologist and show them this report.",
+      "recommended_action": "Book a GP appointment within the next 4 weeks. Download and take this report with you.",
+      "emergency": false,
+      "referral_urgency": "routine"
+    },
+    "MODERATE": {
+      "score_range": { "min": 26, "max": 50 },
+      "rasrm_equivalent": "Stage II (Mild)",
+      "label": "Moderate",
+      "colour_code": "#854F0B",
+      "description": "Symptoms form a recognisable pattern consistent with possible endometriosis. Multiple systems are affected or symptoms are recurring. Specialist referral is recommended.",
+      "plain_language_explanation": "Your symptom pattern is consistent with what many women with endometriosis experience. You have symptoms across more than one area of your body, or your symptoms have been going on long enough to warrant investigation. You should ask your doctor for a referral to a gynaecologist and show them this report. Do not accept being sent away without a plan.",
+      "recommended_action": "Request a gynaecology referral within 2 weeks. If your GP dismisses your concerns, ask again and show this report.",
+      "emergency": false,
+      "referral_urgency": "soon"
+    },
+    "HIGH": {
+      "score_range": { "min": 51, "max": 75 },
+      "rasrm_equivalent": "Stage III (Moderate)",
+      "label": "High",
+      "colour_code": "#993556",
+      "description": "Significant symptom burden across multiple body systems. Pattern strongly consistent with moderate-to-severe endometriosis. Specialist evaluation is strongly advised as soon as possible.",
+      "plain_language_explanation": "Your symptoms suggest a significant pattern that is strongly associated with endometriosis. The number of symptoms you have, and their severity, mean you should see a specialist as soon as possible. Please do not wait. Take this report to a gynaecologist or a reproductive health specialist and request proper imaging or investigation. You deserve answers.",
+      "recommended_action": "See a gynaecologist as soon as possible — aim for within 1 week. If you cannot access one immediately, go to a reproductive health clinic or ask your GP for an urgent referral.",
+      "emergency": false,
+      "referral_urgency": "urgent"
+    },
+    "CRITICAL": {
+      "score_range": { "min": 76, "max": 999 },
+      "rasrm_equivalent": "Stage IV (Severe)",
+      "label": "Critical",
+      "colour_code": "#A32D2D",
+      "description": "Severe symptom burden. Possible advanced endometriosis, acute complication (cyst rupture, torsion, catamenial pneumothorax), or emergency presentation. Seek medical attention today.",
+      "plain_language_explanation": "Your symptoms are severe. This level of pain and the symptoms you have described need medical attention today — not next week. Please go to a hospital, a gynaecology emergency unit, or call for medical help. Show this report to the doctor or nurse who sees you. You are not overreacting. Your pain is real and it needs urgent attention.",
+      "recommended_action": "Go to a hospital or clinic TODAY. If you are in severe pain right now, call for emergency help. Do not delay.",
+      "emergency": true,
+      "referral_urgency": "emergency",
+      "emergency_message": "⚠️ Your symptoms are severe. Please seek medical attention today. If you are in acute pain, go to the nearest hospital emergency department or call for help. Show this screen to the medical staff."
+    }
+  },
+
+  "duration_modifiers": {
+    "description": "Applied based on how long the patient has been experiencing symptoms. Use the highest applicable modifier.",
+    "modifiers": [
+      { "id": "DM001", "label": "Less than 3 months", "modifier": 1.0, "plain_language": "Less than 3 months" },
+      { "id": "DM002", "label": "3 to 6 months", "modifier": 1.1, "plain_language": "3 to 6 months" },
+      { "id": "DM003", "label": "6 months to 1 year", "modifier": 1.2, "plain_language": "6 months to a year" },
+      { "id": "DM004", "label": "1 to 2 years", "modifier": 1.3, "plain_language": "1 to 2 years" },
+      { "id": "DM005", "label": "2 to 5 years", "modifier": 1.5, "plain_language": "2 to 5 years" },
+      { "id": "DM006", "label": "More than 5 years", "modifier": 1.7, "plain_language": "More than 5 years" },
+      { "id": "DM007", "label": "Since adolescence / since first period", "modifier": 1.9, "plain_language": "Since I first got my period" }
+    ]
+  },
+
+  "history_modifiers": {
+    "description": "Applied based on personal and family history factors. All applicable modifiers are multiplied together, then averaged if more than two apply (to prevent runaway scoring). Maximum combined history modifier is capped at 2.5.",
+    "modifiers": [
+      { "id": "HM001", "label": "First-degree family history of endometriosis", "modifier": 1.15, "plain_language": "My mother, sister or daughter has endometriosis" },
+      { "id": "HM002", "label": "Previous misdiagnosis (2+ incorrect diagnoses)", "modifier": 1.2, "plain_language": "I have been diagnosed with the wrong condition before" },
+      { "id": "HM003", "label": "Previous laparoscopy with no finding but symptoms persist", "modifier": 1.25, "plain_language": "I had a laparoscopy that came back normal but I still have pain" },
+      { "id": "HM004", "label": "Hormonal treatment tried with no improvement", "modifier": 1.15, "plain_language": "I tried the pill or other hormones and they did not help my pain" },
+      { "id": "HM005", "label": "Confirmed infertility or subfertility", "modifier": 1.2, "plain_language": "I have been told I have fertility problems" },
+      { "id": "HM006", "label": "Prior endometriosis diagnosis", "modifier": 1.3, "plain_language": "I have already been diagnosed with endometriosis" },
+      { "id": "HM007", "label": "Confirmed endometrioma on imaging", "modifier": 1.35, "plain_language": "I have been told I have a chocolate cyst or endometrioma" },
+      { "id": "HM008", "label": "Prior pelvic surgery (excluding laparoscopy)", "modifier": 1.1, "plain_language": "I have had pelvic surgery before (e.g. caesarean section, fibroid removal)" },
+      { "id": "HM009", "label": "Autoimmune condition", "modifier": 1.1, "plain_language": "I have an autoimmune condition (e.g. lupus, thyroid disease, rheumatoid arthritis)" },
+      { "id": "HM010", "label": "Symptoms started at or before first period (menarche)", "modifier": 1.2, "plain_language": "My symptoms started when I first got my period as a teenager" }
+    ],
+    "cap": 2.5
+  },
+
+  "multi_system_bonus": {
+    "description": "Bonus applied when symptoms span multiple body systems. Endometriosis affecting multiple systems indicates more advanced disease.",
+    "thresholds": [
+      { "systems_affected": 1, "bonus_modifier": 1.0 },
+      { "systems_affected": 2, "bonus_modifier": 1.1 },
+      { "systems_affected": 3, "bonus_modifier": 1.2 },
+      { "systems_affected": 4, "bonus_modifier": 1.35 },
+      { "systems_affected": 5, "bonus_modifier": 1.5 }
+    ]
+  },
+
+  "auto_escalation_rules": {
+    "description": "Certain symptoms automatically escalate the ESI tier regardless of calculated score. These represent clinical red flags.",
+    "rules": [
+      {
+        "rule_id": "AE001",
+        "trigger_symptom_ids": ["S010"],
+        "trigger_severity": "moderate",
+        "minimum_tier": "HIGH",
+        "reason": "Cyclical rectal bleeding is a red flag for bowel endometriosis requiring urgent specialist evaluation"
+      },
+      {
+        "rule_id": "AE002",
+        "trigger_symptom_ids": ["S016"],
+        "trigger_severity": "mild",
+        "minimum_tier": "HIGH",
+        "reason": "Cyclical haematuria is essentially pathognomonic for bladder endometriosis"
+      },
+      {
+        "rule_id": "AE003",
+        "trigger_symptom_ids": ["S032"],
+        "trigger_severity": "mild",
+        "minimum_tier": "CRITICAL",
+        "reason": "Any cyclical respiratory symptoms suggesting thoracic endometriosis require emergency evaluation"
+      },
+      {
+        "rule_id": "AE004",
+        "trigger_symptom_ids": ["S033"],
+        "trigger_severity": "mild",
+        "minimum_tier": "CRITICAL",
+        "reason": "Catamenial haemoptysis is an emergency — potential thoracic endometriosis"
+      },
+      {
+        "rule_id": "AE005",
+        "trigger_symptom_ids": ["S028"],
+        "trigger_severity": "critical",
+        "minimum_tier": "CRITICAL",
+        "reason": "Acute cyst rupture or torsion is a surgical emergency"
+      },
+      {
+        "rule_id": "AE006",
+        "trigger_symptom_ids": ["S025"],
+        "trigger_severity": "severe",
+        "minimum_tier": "HIGH",
+        "reason": "Fainting from pain indicates severe symptom burden requiring urgent evaluation"
+      },
+      {
+        "rule_id": "AE007",
+        "trigger_symptom_ids": ["S019"],
+        "trigger_severity": "critical",
+        "minimum_tier": "CRITICAL",
+        "reason": "Neurological leg symptoms (drop foot, paralysis) suggest sciatic endometriosis — neurosurgical emergency"
+      }
+    ]
+  },
+
+  "disclaimer": {
+    "text": "The Endometriosis Severity Index (ESI) score produced by EndoScan AI is generated by an algorithm based on self-reported symptom data. It is not a clinical diagnosis. It is not validated as a standalone diagnostic instrument and has not been approved or cleared by any regulatory body. The score is intended solely to help you identify the level of urgency with which you should seek medical evaluation and to give you a structured record to share with a healthcare provider. Always seek the advice of a qualified medical professional. Do not delay seeking care based on this score.",
+    "version": "1.0"
+  }
+}
