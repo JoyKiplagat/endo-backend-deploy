@@ -1,11 +1,17 @@
 import os
+import gc
 import joblib
 from pathlib import Path
 import numpy as np
 from PIL import Image
 import cv2
+import torch
+import torch.nn as nn
 from google import genai
 from dotenv import load_dotenv
+
+# Limit PyTorch CPU threads to prevent CPU & RAM spikes on Render
+torch.set_num_threads(1)
 
 # Locate project root dynamically
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -15,11 +21,7 @@ env_path = BASE_DIR / ".env"
 load_dotenv(dotenv_path=env_path)
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-
-# Initialize new Gemini client
-gemini_client = None
-if GEMINI_API_KEY:
-    gemini_client = genai.Client(api_key=GEMINI_API_KEY)
+gemini_client = genai.Client(api_key=GEMINI_API_KEY) if GEMINI_API_KEY else None
 
 # Model output paths using absolute BASE_DIR
 MRI_CHECKPOINT_PATH = BASE_DIR / "outputs" / "mri_best_model.pt"
@@ -28,99 +30,85 @@ LAPARO_CHECKPOINT_PATH = BASE_DIR / "outputs" / "mri_best_model" / "data.pt"
 
 IMG_SIZE = 224
 
-# Global cache variables (loaded lazily on first inference request)
-_LOADED_MODELS = None
+# Cache for single loaded model
+_ACTIVE_MODALITY = None
+_ACTIVE_MODEL = None
+_ACTIVE_PLATT = None
 
 
-def _get_models_and_config():
-    """Lazily load PyTorch models and calibration files on first call."""
-    global _LOADED_MODELS
-    if _LOADED_MODELS is not None:
-        return _LOADED_MODELS
-
-    import torch
-    import torch.nn as nn
+def build_efficientnet_b0_head(dropout: float = 0.3) -> nn.Module:
     import timm
+    model = timm.create_model('efficientnet_b0', pretrained=False)
+    in_feat = model.classifier.in_features
+    model.classifier = nn.Sequential(nn.Dropout(p=dropout), nn.Linear(in_feat, 1))
+    return model.to(torch.device('cpu'))
 
-    device = torch.device('cpu')  # Force CPU on Render to save memory
 
-    def build_efficientnet_b0_head(dropout: float = 0.3) -> nn.Module:
-        model = timm.create_model('efficientnet_b0', pretrained=False)
-        in_feat = model.classifier.in_features
-        model.classifier = nn.Sequential(nn.Dropout(p=dropout), nn.Linear(in_feat, 1))
-        return model.to(device)
+def _get_model_for_modality(modality: str):
+    """Loads ONLY the requested model to save RAM on Render (512MB limit)."""
+    global _ACTIVE_MODALITY, _ACTIVE_MODEL, _ACTIVE_PLATT
 
-    # Load MRI model
-    mri_model = build_efficientnet_b0_head()
-    if MRI_CHECKPOINT_PATH.exists():
-        mri_ckpt = torch.load(MRI_CHECKPOINT_PATH, map_location=device, weights_only=False)
-        mri_model.load_state_dict(mri_ckpt['model_state_dict'])
-        mri_model.eval()
+    if _ACTIVE_MODALITY == modality and _ACTIVE_MODEL is not None:
+        return _ACTIVE_MODEL, _ACTIVE_PLATT
 
-    mri_platt = joblib.load(MRI_CALIBRATION_PATH)['platt'] if MRI_CALIBRATION_PATH.exists() else None
+    # Free previous model from RAM before loading a new one
+    _ACTIVE_MODEL = None
+    _ACTIVE_PLATT = None
+    gc.collect()
 
-    # Load Laparoscopy model
-    laparo_model = build_efficientnet_b0_head()
-    if LAPARO_CHECKPOINT_PATH.exists():
-        laparo_ckpt = torch.load(LAPARO_CHECKPOINT_PATH, map_location=device, weights_only=False)
-        laparo_model.load_state_dict(laparo_ckpt['model_state_dict'])
-        laparo_model.eval()
+    device = torch.device('cpu')
 
-    modality_config = {
-        'mri': {
-            'model': mri_model,
-            'threshold': 0.36,
-            'platt': mri_platt,
-            'grad_cam_target_layer': lambda m: m.blocks[-1][-1],
-            'finding_labels': {
-                1: 'Possible endometriosis indicators visible on this MRI slice',
-                0: 'No endometriosis indicators visible on this MRI slice',
-            },
-            'scan_description': 'MRI slice',
-        },
-        'laparoscopy': {
-            'model': laparo_model,
-            'threshold': 0.5,
-            'platt': None,
-            'grad_cam_target_layer': lambda m: m.blocks[6],
-            'finding_labels': {
-                1: 'Possible endometriosis tissue visible on this laparoscopy frame',
-                0: 'No endometriosis tissue visible on this laparoscopy frame',
-            },
-            'scan_description': 'laparoscopy image',
-        }
-    }
+    if modality == 'mri':
+        model = build_efficientnet_b0_head()
+        if MRI_CHECKPOINT_PATH.exists():
+            ckpt = torch.load(MRI_CHECKPOINT_PATH, map_location=device, weights_only=False)
+            model.load_state_dict(ckpt['model_state_dict'])
+            del ckpt
+        model.eval()
+        platt = joblib.load(MRI_CALIBRATION_PATH)['platt'] if MRI_CALIBRATION_PATH.exists() else None
+    else:
+        model = build_efficientnet_b0_head()
+        if LAPARO_CHECKPOINT_PATH.exists():
+            ckpt = torch.load(LAPARO_CHECKPOINT_PATH, map_location=device, weights_only=False)
+            model.load_state_dict(ckpt['model_state_dict'])
+            del ckpt
+        model.eval()
+        platt = None
 
-    _LOADED_MODELS = (device, modality_config)
-    return _LOADED_MODELS
+    _ACTIVE_MODALITY = modality
+    _ACTIVE_MODEL = model
+    _ACTIVE_PLATT = platt
+    gc.collect()
+
+    return _ACTIVE_MODEL, _ACTIVE_PLATT
 
 
 def detect_modality(image_path, channel_diff_threshold: float = 5.0) -> str:
-    img = np.array(Image.open(image_path).convert('RGB'), dtype=np.float32)
+    with Image.open(image_path) as raw_img:
+        img = np.array(raw_img.convert('RGB'), dtype=np.float32)
     r, g, b = img[..., 0], img[..., 1], img[..., 2]
     mean_channel_diff = (np.abs(r - g).mean() + np.abs(g - b).mean() + np.abs(r - b).mean()) / 3
     return 'laparoscopy' if mean_channel_diff > channel_diff_threshold else 'mri'
 
 
 def preprocess_for_model(image_path, modality: str):
-    import torch
-    if modality == 'mri':
-        raw = np.array(Image.open(image_path).convert('L'), dtype=np.float32)
-        sl = raw / 255.0 * 2.0 - 1.0
-        if sl.shape[0] != IMG_SIZE or sl.shape[1] != IMG_SIZE:
-            from scipy.ndimage import zoom as scipy_zoom
-            sl = scipy_zoom(sl, (IMG_SIZE / sl.shape[0], IMG_SIZE / sl.shape[1]), order=1)
-        return torch.tensor(np.stack([sl, sl, sl], 0), dtype=torch.float32)
-    else:
-        img = np.array(Image.open(image_path).convert('RGB').resize((IMG_SIZE, IMG_SIZE)), dtype=np.float32) / 255.0
-        mean = np.array([0.485, 0.456, 0.406])
-        std = np.array([0.229, 0.224, 0.225])
-        img_norm = (img - mean) / std
-        return torch.tensor(img_norm.transpose(2, 0, 1), dtype=torch.float32)
+    with Image.open(image_path) as raw_img:
+        if modality == 'mri':
+            raw = np.array(raw_img.convert('L'), dtype=np.float32)
+            sl = raw / 255.0 * 2.0 - 1.0
+            if sl.shape[0] != IMG_SIZE or sl.shape[1] != IMG_SIZE:
+                from scipy.ndimage import zoom as scipy_zoom
+                sl = scipy_zoom(sl, (IMG_SIZE / sl.shape[0], IMG_SIZE / sl.shape[1]), order=1)
+            return torch.tensor(np.stack([sl, sl, sl], 0), dtype=torch.float32)
+        else:
+            img = np.array(raw_img.convert('RGB').resize((IMG_SIZE, IMG_SIZE)), dtype=np.float32) / 255.0
+            mean = np.array([0.485, 0.456, 0.406])
+            std = np.array([0.229, 0.224, 0.225])
+            img_norm = (img - mean) / std
+            return torch.tensor(img_norm.transpose(2, 0, 1), dtype=torch.float32)
 
 
-def make_grad_cam(model, target_layer, device):
-    import torch
+def make_grad_cam(model, target_layer):
     activations, gradients = {}, {}
 
     def fwd_hook(module, inp, out): activations['feat'] = out.detach()
@@ -131,22 +119,21 @@ def make_grad_cam(model, target_layer, device):
 
     def grad_cam(img_tensor):
         model.eval()
-        img = img_tensor.unsqueeze(0).to(device).requires_grad_(True)
+        img = img_tensor.unsqueeze(0).to(torch.device('cpu')).requires_grad_(True)
         out = model(img)
         model.zero_grad()
         out.backward()
-        
+
         grads, acts = gradients['feat'].squeeze(0), activations['feat'].squeeze(0)
         weights = grads.mean(dim=(1, 2), keepdim=True)
         cam = (weights * acts).sum(dim=0).cpu().numpy()
         cam = np.maximum(cam, 0)
-        if cam.max() > 0: cam /= cam.max()
-        
-        # Free computation graph memory immediately
+        if cam.max() > 0:
+            cam /= cam.max()
+
         del img, out, grads, acts, weights
-        if torch.cuda.is_available():
-            torch.cuda.empty_cache()
-            
+        gc.collect()
+
         return np.array(Image.fromarray((cam * 255).astype(np.uint8)).resize((IMG_SIZE, IMG_SIZE), Image.BILINEAR)) / 255.0
 
     return grad_cam, (h1, h2)
@@ -163,38 +150,48 @@ def describe_attention_region(cam: np.ndarray, threshold: float = 0.6) -> str:
 
 
 def route_and_explain(image_path: str) -> str:
-    import torch
-    device, modality_config = _get_models_and_config()
-
     modality = detect_modality(image_path)
-    cfg = modality_config[modality]
-    model = cfg['model']
+    model, platt = _get_model_for_modality(modality)
+    device = torch.device('cpu')
+
+    threshold = 0.36 if modality == 'mri' else 0.5
+    finding_labels = {
+        'mri': {
+            1: 'Possible endometriosis indicators visible on this MRI slice',
+            0: 'No endometriosis indicators visible on this MRI slice',
+        },
+        'laparoscopy': {
+            1: 'Possible endometriosis tissue visible on this laparoscopy frame',
+            0: 'No endometriosis tissue visible on this laparoscopy frame',
+        }
+    }
 
     tens = preprocess_for_model(image_path, modality)
-    
-    # Wrap prediction strictly in torch.no_grad()
+
     with torch.no_grad():
         raw_prob = torch.sigmoid(model(tens.unsqueeze(0).to(device))).item()
 
-    confidence = float(cfg['platt'].predict_proba([[raw_prob]])[:, 1][0]) if cfg['platt'] else raw_prob
-    finding = int(confidence > cfg['threshold'])
+    confidence = float(platt.predict_proba([[raw_prob]])[:, 1][0]) if platt else raw_prob
+    finding = int(confidence > threshold)
 
-    # Enable gradients ONLY for Grad-CAM computation
+    target_layer = model.blocks[-1][-1] if modality == 'mri' else model.blocks[6]
+
     with torch.enable_grad():
-        grad_cam_fn, hooks = make_grad_cam(model, cfg['grad_cam_target_layer'](model), device)
+        grad_cam_fn, hooks = make_grad_cam(model, target_layer)
         cam = grad_cam_fn(tens)
         hooks[0].remove()
         hooks[1].remove()
 
-    # Generate Heatmap Overlay
-    raw = np.array(Image.open(image_path).convert('RGB'), dtype=np.float32)
+    with Image.open(image_path) as raw_img:
+        raw = np.array(raw_img.convert('RGB'), dtype=np.float32)
+    
     cam_resized = cv2.resize(cam, (raw.shape[1], raw.shape[0]))
     heatmap = cv2.applyColorMap(np.uint8(255 * cam_resized), cv2.COLORMAP_JET)
     overlay = (0.55 * raw + 0.45 * cv2.cvtColor(heatmap, cv2.COLOR_BGR2RGB)).astype(np.uint8)
 
     region_desc = describe_attention_region(cam)
-    confidence_label = f"{confidence*100:.0f}%" if cfg['platt'] else "Moderate"
-    finding_label = cfg['finding_labels'][finding]
+    confidence_label = f"{confidence*100:.0f}%" if platt else "Moderate"
+    finding_label = finding_labels[modality][finding]
 
     prompt = f"""
 You are EndoScan AI, a compassionate and helpful health assistant explaining scan results to a patient.
@@ -207,7 +204,7 @@ Scan Details:
 
 INSTRUCTIONS:
 1. Write in plain, everyday English that anyone can easily understand.
-2. ABSOLUTELY NO MEDICAL JARGON. Avoid technical terms like "peritoneal", "pouch of Douglas", "uterosacral", "histopathologic", "lesions", "hemorrhagic", or "vascular". Use simple words like "pelvic area", "tissue", "dark spots", "inflammation", or "scarring".
+2. ABSOLUTELY NO MEDICAL JARGON. Use simple words like "pelvic area", "tissue", "dark spots", "inflammation", or "scarring".
 3. Do not use Markdown header symbols (###) or dividers (---).
 4. Keep line spacing tight and paragraph gaps minimal.
 
