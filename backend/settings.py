@@ -162,19 +162,17 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-]
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "http://localhost:5173",
     "http://127.0.0.1:5173",
+    "https://*.vercel.app",  
 ]
-# 2. Explicitly permit PUT and PATCH request types
+
+CORS_ALLOW_ALL_ORIGINS = True
+
+
 CORS_ALLOW_METHODS = [
     "DELETE",
     "GET",
@@ -184,8 +182,6 @@ CORS_ALLOW_METHODS = [
     "PUT",
 ]
 
-CORS_ALLOW_ALL_ORIGINS = True
-# 3. Explicitly permit standard authorization headers
 CORS_ALLOW_HEADERS = [
     "accept",
     "accept-encoding",
@@ -197,8 +193,3 @@ CORS_ALLOW_HEADERS = [
     "x-csrftoken",
     "x-requested-with",
 ]
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-CELERY_TASK_ALWAYS_EAGER = True
-CELERY_TASK_EAGER_PROPAGATES = True
