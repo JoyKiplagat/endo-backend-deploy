@@ -4,7 +4,7 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 import cv2
-import google.generativeai as genai
+from google import genai
 from dotenv import load_dotenv
 
 # Locate project root dynamically
@@ -15,8 +15,11 @@ env_path = BASE_DIR / ".env"
 load_dotenv(dotenv_path=env_path)
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+
+# Initialize new Gemini client
+gemini_client = None
 if GEMINI_API_KEY:
-    genai.configure(api_key=GEMINI_API_KEY)
+    gemini_client = genai.Client(api_key=GEMINI_API_KEY)
 
 # Model output paths using absolute BASE_DIR
 MRI_CHECKPOINT_PATH = BASE_DIR / "outputs" / "mri_best_model.pt"
@@ -39,7 +42,7 @@ def _get_models_and_config():
     import torch.nn as nn
     import timm
 
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    device = torch.device('cpu')  # Force CPU on Render to save memory
 
     def build_efficientnet_b0_head(dropout: float = 0.3) -> nn.Module:
         model = timm.create_model('efficientnet_b0', pretrained=False)
@@ -132,11 +135,18 @@ def make_grad_cam(model, target_layer, device):
         out = model(img)
         model.zero_grad()
         out.backward()
+        
         grads, acts = gradients['feat'].squeeze(0), activations['feat'].squeeze(0)
         weights = grads.mean(dim=(1, 2), keepdim=True)
         cam = (weights * acts).sum(dim=0).cpu().numpy()
         cam = np.maximum(cam, 0)
         if cam.max() > 0: cam /= cam.max()
+        
+        # Free computation graph memory immediately
+        del img, out, grads, acts, weights
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+            
         return np.array(Image.fromarray((cam * 255).astype(np.uint8)).resize((IMG_SIZE, IMG_SIZE), Image.BILINEAR)) / 255.0
 
     return grad_cam, (h1, h2)
@@ -161,16 +171,20 @@ def route_and_explain(image_path: str) -> str:
     model = cfg['model']
 
     tens = preprocess_for_model(image_path, modality)
+    
+    # Wrap prediction strictly in torch.no_grad()
     with torch.no_grad():
         raw_prob = torch.sigmoid(model(tens.unsqueeze(0).to(device))).item()
 
     confidence = float(cfg['platt'].predict_proba([[raw_prob]])[:, 1][0]) if cfg['platt'] else raw_prob
     finding = int(confidence > cfg['threshold'])
 
-    grad_cam_fn, hooks = make_grad_cam(model, cfg['grad_cam_target_layer'](model), device)
-    cam = grad_cam_fn(tens)
-    hooks[0].remove()
-    hooks[1].remove()
+    # Enable gradients ONLY for Grad-CAM computation
+    with torch.enable_grad():
+        grad_cam_fn, hooks = make_grad_cam(model, cfg['grad_cam_target_layer'](model), device)
+        cam = grad_cam_fn(tens)
+        hooks[0].remove()
+        hooks[1].remove()
 
     # Generate Heatmap Overlay
     raw = np.array(Image.open(image_path).convert('RGB'), dtype=np.float32)
@@ -216,8 +230,13 @@ Important Things to Remember
     overlay_pil = Image.fromarray(overlay)
 
     try:
-        gemini_model = genai.GenerativeModel('gemini-2.5-flash')
-        response = gemini_model.generate_content([overlay_pil, prompt])
+        if not gemini_client:
+            raise ValueError("Gemini API key is missing.")
+
+        response = gemini_client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=[overlay_pil, prompt]
+        )
         return response.text
     except Exception as e:
         print(f"Gemini API Error: {e}")
