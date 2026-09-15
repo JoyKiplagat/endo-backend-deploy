@@ -3,7 +3,7 @@ import json
 import re
 from pathlib import Path
 import numpy as np
-import torch
+#import torch
 from transformers import AutoTokenizer, AutoModelForTokenClassification
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
@@ -188,6 +188,7 @@ Reply only with your next message to the patient. No JSON, no preamble.
 
 # ── 3. Helper & Local NER Functions ──────────────────────────────────
 def get_tier_from_rules(score: float) -> str:
+    import torch
     """Dynamically assign ESI tier based on structural JSON ranges."""
     esi_tiers = scoring_rules.get('esi_tiers', {})
     
@@ -206,6 +207,7 @@ def get_tier_from_rules(score: float) -> str:
 
 
 def map_span_to_id_semantic(span_text: str, threshold=0.45):
+    import torch
     """Maps free-text span to symptom ID via sentence transformer cosine similarity."""
     if not span_text or len(span_text.strip()) < 2:
         return None, None, 0.0
@@ -221,6 +223,7 @@ def map_span_to_id_semantic(span_text: str, threshold=0.45):
 
 
 def predict_single_pass(text: str) -> list:
+    import torch
     """Run Layer 1 (Alias Match) & Layer 2 (BioBERT NER + Semantic Resolution) on text."""
     detections, l1_hits, matched_spans = [], [], set()
     text_lower = text.lower()
@@ -292,6 +295,7 @@ def predict_single_pass(text: str) -> list:
 
 
 def calculate_esi(detected_symptoms, severity_map, duration_code=None, history_flags=None):
+    import torch
     """Calculates ESI score (0-100) and assigns tier."""
     history_flags = history_flags or []
     if not detected_symptoms:
@@ -384,6 +388,7 @@ def extract_extraction_data(user_input: str) -> dict:
 
 
 def generate_explanation(assessment_data: dict) -> str:
+    import torch
     """Uses EXPLANATION_PROMPT to generate patient-facing explanation."""
     if not ai_client:
         return "Thank you for sharing your symptoms. Based on what you shared, your symptoms show patterns that align with endometriosis. We recommend discussing these results with a healthcare specialist."
@@ -416,6 +421,7 @@ def generate_explanation(assessment_data: dict) -> str:
 
 
 def generate_followup_question(history: str, symptoms: list, duration: str, history_flags: list, needs_followup: list) -> str:
+    import torch
     """Uses FOLLOWUP_PROMPT to ask gentle follow-up questions."""
     if not ai_client:
         return "Thank you for sharing. Could you tell me roughly how long you have been experiencing these symptoms?"
